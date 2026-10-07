@@ -1,7 +1,10 @@
-FROM golang:1.26 AS build
+FROM --platform=$BUILDPLATFORM golang:1.26 AS build
+ARG TARGETOS
+ARG TARGETARCH
 WORKDIR /src
 COPY go.mod main.go ./
-RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /go-echo .
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -trimpath -ldflags="-s -w" -o /go-echo .
 
 FROM scratch
 COPY --from=build /go-echo /go-echo
